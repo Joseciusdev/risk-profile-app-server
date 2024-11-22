@@ -3,18 +3,18 @@ package com.example.risk_profile_app_server.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.List;
-
 @Entity
 @Data
-public class Questionnaire {
+public class Option {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String question;
+  private String text;
+  private int score;
 
-  @OneToMany(mappedBy = "questionnaire", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Option> options;
+  @ManyToOne
+  @JoinColumn(name = "questionnaire_id")
+  private Questionnaire questionnaire;
 }

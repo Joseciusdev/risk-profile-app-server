@@ -1,38 +1,56 @@
 package com.example.risk_profile_app_server.service;
 
+import com.example.risk_profile_app_server.dto.OptionDTO;
+import com.example.risk_profile_app_server.dto.QuestionnaireDTO;
 import com.example.risk_profile_app_server.entity.Questionnaire;
 import com.example.risk_profile_app_server.repository.QuestionnaireRepository;
-import com.example.risk_profile_app_server.service.QuestionnaireService;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 class QuestionnaireServiceTest {
 
-  private final QuestionnaireRepository repository = mock(QuestionnaireRepository.class);
-  // private final QuestionnaireService service = new
-  // QuestionnaireService(repository);
-  private final QuestionnaireService service = new QuestionnaireService();
+  @Mock
+  private QuestionnaireRepository questionnaireRepository;
+
+  @InjectMocks
+  private QuestionnaireService questionnaireService;
+
+  public QuestionnaireServiceTest() {
+    MockitoAnnotations.openMocks(this);
+  }
 
   @Test
-  void getAllQuestionsTest() {
-    Questionnaire q1 = new Questionnaire();
-    q1.setId(1L);
-    q1.setQuestion("How would you describe your investment knowledge?");
-    q1.setAnswer("Novice");
-    q1.setScore(1);
+  void testGetAllQuestions() {
+    List<Questionnaire> mockEntities = Arrays.asList(
+        new Questionnaire(1L, "Question 1", null),
+        new Questionnaire(2L, "Question 2", null));
 
-    when(repository.findAll()).thenReturn(List.of(q1));
+    when(questionnaireRepository.findAll()).thenReturn(mockEntities);
 
-    List<Questionnaire> result = service.getAllQuestions();
+    List<QuestionnaireDTO> result = questionnaireService.getAllQuestions();
+    assertEquals(2, result.size());
+    assertEquals("Question 1", result.get(0).getQuestion());
+  }
 
-    assertEquals(1, result.size());
-    assertEquals("How would you describe your investment knowledge?", result.get(0).getQuestion());
-    verify(repository, times(1)).findAll();
+  @Test
+  void testCalculateRiskProfile() {
+    List<OptionDTO> options = Arrays.asList(
+        new OptionDTO(1L, "Option 1", 3),
+        new OptionDTO(2L, "Option 2", 4));
+
+    List<QuestionnaireDTO> questionnaireDTOs = Arrays.asList(
+        new QuestionnaireDTO(1L, "Question 1", options));
+
+    String result = questionnaireService.calculateRiskProfile(questionnaireDTOs);
+    assertEquals("Moderate Risk", result);
   }
 }

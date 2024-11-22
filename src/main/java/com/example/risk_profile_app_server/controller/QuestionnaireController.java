@@ -1,5 +1,7 @@
 package com.example.risk_profile_app_server.controller;
 
+import com.example.risk_profile_app_server.dto.QuestionnaireDTO;
+import com.example.risk_profile_app_server.dto.ResultDTO;
 import com.example.risk_profile_app_server.entity.Questionnaire;
 import com.example.risk_profile_app_server.service.QuestionnaireService;
 
@@ -15,13 +17,19 @@ public class QuestionnaireController {
   @Autowired
   private QuestionnaireService questionnaireService;
 
-  @GetMapping()
-  public List<Questionnaire> getAllQuestions() {
+  @GetMapping
+  public List<QuestionnaireDTO> getAllQuestions() {
     return questionnaireService.getAllQuestions();
   }
 
-  @PostMapping()
+  @PostMapping
   public Questionnaire saveQuestionnaire(@RequestBody Questionnaire questionnaire) {
     return questionnaireService.saveQuestionnaire(questionnaire);
+  }
+
+  @PostMapping("/submit")
+  public ResultDTO submitAnswers(@RequestBody List<QuestionnaireDTO> questionnaireDTOs) {
+    String riskProfile = questionnaireService.calculateRiskProfile(questionnaireDTOs);
+    return new ResultDTO(riskProfile);
   }
 }
